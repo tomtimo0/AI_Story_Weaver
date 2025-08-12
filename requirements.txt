@@ -1,0 +1,8 @@
+streamlit>=1.36.0
+python-dotenv>=1.0.1
+openai>=1.35.0
+sentence-transformers>=2.7.0
+chromadb>=0.5.3
+pillow>=10.3.0
+numpy>=1.26.4
+dashscope>=1.16.0 

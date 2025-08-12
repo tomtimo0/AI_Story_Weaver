@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.dylib
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.python-version
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE/Editor
+.vscode/
+.idea/
+.cursor/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Caches & models
+.hf_cache/
+.cache/
+.huggingface/
+models/
+
+# Data (ChromaDB)
+data/chroma/*
+!data/chroma/.gitkeep
+
+# Assets (images kept out of git; keep folder only)
+assets/images/*
+!assets/images/.gitkeep
+
+# Build & test artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+
+# Notebooks
+.ipynb_checkpoints/
