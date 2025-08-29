@@ -125,7 +125,7 @@ class LLMClient:
                 dashscope.api_key = config.tongyi_api_key
                 self._client = "dashscope"  # 占位标识
 
-    def chat(self, system_prompt: str, user_prompt: str) -> str:
+    def chat(self, system_prompt: str, user_prompt: str, max_tokens: int = 800) -> str:
         """对话式生成文本；若无可用 LLM，则回退到简单模板。"""
         model = self.config.llm_model
         temp = self.config.temperature
@@ -135,6 +135,7 @@ class LLMClient:
                 completion = self._client.chat.completions.create(
                     model=model,
                     temperature=temp,
+                    max_tokens=max_tokens,
                     messages=[
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt},
@@ -156,6 +157,7 @@ class LLMClient:
                     ],
                     result_format="message",
                     temperature=temp,
+                    max_tokens=max_tokens,
                 )
                 # 兼容不同返回结构
                 try:
@@ -292,6 +294,64 @@ def query_similar_documents(
     docs: List[str] = result.get("documents", [[]])[0] or []
     metas: List[dict] = result.get("metadatas", [[]])[0] or []
     return docs, metas
+
+
+def get_candidate_images(
+    collection: Collection,
+    query_embedding: List[float],
+    n_candidates: int = 8,
+    used_paths: set = None,
+) -> List[Tuple[str, dict]]:
+    """获取候选图片列表，排除已使用的图片。"""
+    if used_paths is None:
+        used_paths = set()
+    
+    # 获取更多候选以便过滤
+    n_fetch = min(n_candidates * 3, 50)
+    result = collection.query(query_embeddings=[query_embedding], n_results=n_fetch)
+    docs: List[str] = result.get("documents", [[]])[0] or []
+    metas: List[dict] = result.get("metadatas", [[]])[0] or []
+    
+    # 过滤已使用的图片
+    candidates = []
+    for doc, meta in zip(docs, metas):
+        image_path = meta.get("path", "")
+        if image_path not in used_paths:
+            candidates.append((doc, meta))
+        if len(candidates) >= n_candidates:
+            break
+    
+    return candidates
+
+
+def get_random_candidate_images(
+    collection: Collection,
+    n_candidates: int = 8,
+    used_paths: set = None,
+) -> List[Tuple[str, dict]]:
+    """随机获取候选图片列表，排除已使用的图片。"""
+    import random
+    
+    if used_paths is None:
+        used_paths = set()
+    
+    # 获取所有图片
+    result = collection.get(include=["documents", "metadatas"])
+    all_docs: List[str] = result.get("documents", [])
+    all_metas: List[dict] = result.get("metadatas", [])
+    
+    # 过滤已使用的图片
+    available_candidates = []
+    for doc, meta in zip(all_docs, all_metas):
+        image_path = meta.get("path", "")
+        if image_path not in used_paths:
+            available_candidates.append((doc, meta))
+    
+    # 随机选择候选图片
+    if len(available_candidates) <= n_candidates:
+        return available_candidates
+    else:
+        return random.sample(available_candidates, n_candidates)
 
 
 def _stable_id(text: str) -> str:

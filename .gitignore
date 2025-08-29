@@ -33,13 +33,13 @@ Thumbs.db
 .huggingface/
 models/
 
-# Data (ChromaDB)
-data/chroma/*
-!data/chroma/.gitkeep
+# Data folder (ChromaDB, embeddings, etc.)
+data/
+!data/.gitkeep
 
-# Assets (images kept out of git; keep folder only)
-assets/images/*
-!assets/images/.gitkeep
+# Assets folder (images, media files)
+assets/
+!assets/.gitkeep
 
 # Build & test artifacts
 build/

@@ -27,12 +27,15 @@ def _filename_to_hint(path: Path) -> str:
 
 def _llm_caption_image(llm: LLMClient, path: Path) -> Optional[str]:
     """使用多模态 API 对图片生成短描述。不可用时返回 None。"""
-    instruction = "请用2-3句中文，描述图片的场景、角色/物体，以及可推动故事的细节线索。"
+    instruction = (
+        "请简洁全面地描述这张图片的内容，包括：主要物体/人物及其动作状态、"
+        "场景环境和背景、色彩光线氛围特征、值得注意的细节。用2-3句中文概括。"
+    )
     return llm.chat_with_image(path, instruction)
 
 
 def _llm_describe_from_hint(client: LLMClient, hint: str) -> str:
-    user = f"文件名线索：{hint}\n请生成 2-3 句适合故事创作的中文描述。"
+    user = f"根据文件名线索：{hint}\n请想象并简洁全面地描述这张图片可能包含的内容。"
     return client.chat(SYSTEM_IMAGE_ANNOTATOR, user)
 
 
